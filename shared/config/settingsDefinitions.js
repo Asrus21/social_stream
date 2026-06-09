@@ -813,6 +813,11 @@ const SETTINGS_DEFINITIONS = Object.freeze({
     category: "giphy_tenor_support",
     description: "Hide the Giphy/Tenor trigger word or sentence."
   },
+  "lightshot": {
+    type: "boolean",
+    category: "giphy_tenor_support",
+    description: "When enabled, Lightshot (prnt.sc) screenshot links posted in chat are shown as inline images."
+  },
   "hidehostsext": {
     type: "boolean",
     category: "assign_roles_classes_to_certain_users",

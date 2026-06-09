@@ -15879,6 +15879,44 @@ async function applyBotActions(data, tab = false) {
 				}
 			}
 		}
+
+		// Lightshot (prnt.sc) screenshot links -> inline image in chat.
+		// prnt.sc/prntscr.com links are HTML pages, not direct images; the real
+		// screenshot lives on image.prntscr.com and is exposed via the og:image meta tag.
+		if (settings.lightshot && data.chatmessage && !data.contentimg) {
+			try {
+				const lightshotMatch = data.chatmessage.match(/https?:\/\/(?:www\.)?(?:prnt\.sc|prntscr\.com)\/([A-Za-z0-9]{4,})/i);
+				if (lightshotMatch) {
+					const lightshotPage = "https://prnt.sc/" + lightshotMatch[1];
+					const lightshotImg = await fetch(lightshotPage, {
+						headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+					})
+						.then(response => (response.ok ? response.text() : ""))
+						.then(html => {
+							if (!html) return false;
+							// The page exposes the real screenshot through an og:image meta tag.
+							// Only embed when it points at image.prntscr.com; removed/expired
+							// screenshots fall back to an st.prntscr.com placeholder we skip.
+							const meta =
+								html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+								html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+							if (meta && meta[1] && /^https?:\/\/image\.prntscr\.com\//i.test(meta[1])) {
+								return meta[1].replace(/^http:/, "https:");
+							}
+							return false;
+						})
+						.catch(e => {
+							console.error("Lightshot fetch error:", e);
+							return false;
+						});
+					if (lightshotImg) {
+						data.contentimg = lightshotImg;
+					}
+				}
+			} catch (e) {
+				console.error("Lightshot embed error:", e);
+			}
+		}
 	} catch (e) {
 		console.error(e);
 	}
