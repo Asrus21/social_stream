@@ -15885,7 +15885,7 @@ async function applyBotActions(data, tab = false) {
 		// so the extension cannot scrape the og:image itself. Instead we point the
 		// <img> at Microlink, which renders the page and streams back the underlying
 		// screenshot (image.prntscr.com) via its embed shortcut.
-		if (settings.lightshot && data.chatmessage && !data.contentimg) {
+		if (data.chatmessage && !data.contentimg) {
 			try {
 				const lightshotMatch = data.chatmessage.match(/https?:\/\/(?:www\.)?(?:prnt\.sc|prntscr\.com)\/[A-Za-z0-9]{4,}/i);
 				if (lightshotMatch) {
