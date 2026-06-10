@@ -10,6 +10,7 @@
 		<meta name="robots" content="noindex">
 		<script type="text/javascript" src="currency.js"></script>
 		<script type="text/javascript" src="./libs/objects.js"></script>
+		<script type="text/javascript" src="./libs/seventv-paints.js"></script>
 
 		<style>
 			:root {
@@ -3234,6 +3235,7 @@
 			var cohostStatusMessage = "";
 			var cohostStatusKind = "warn";
 			var treatTikTokFansAsMembers = urlParams.has("tiktokfans");
+			var sevenTVPaints = !urlParams.has("nopaints"); // 7TV nametag paints; Twitch chatters only
 			var channel = null;
 			var iframes = [];
 			var queue = [];
@@ -11044,6 +11046,13 @@
 						mainOutputWindow.insertBefore(node, mainOutputWindow.firstChild);
 					} else {
 						mainOutputWindow.appendChild(node);
+					}
+
+					if (sevenTVPaints && data.type === "twitch" && window.SeventvPaints && (data.userid || data.username || data.chatname)) {
+						var paintNameEle = node.querySelector(".hl-name");
+						if (paintNameEle) {
+							window.SeventvPaints.applyToElement(paintNameEle, { userId: data.userid, username: data.username || data.chatname });
+						}
 					}
 
 					let hlMessage = node.querySelector(".hl-message");
