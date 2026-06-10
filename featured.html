@@ -894,6 +894,7 @@
 			<source src="./audio/tone.ogg" type="audio/ogg" />
 		</audio>
 		<script type="text/javascript" src="tts.js"></script>
+		<script type="text/javascript" src="./libs/seventv-paints.js"></script>
 		<script>
 			(function (w) {
 				w.URLSearchParams =
@@ -912,6 +913,17 @@
 					};
 			})(window);
 			var urlParams = new URLSearchParams(window.location.search);
+			var sevenTVPaints = !urlParams.has("nopaints"); // 7TV nametag paints; Twitch chatters only
+
+			function applyTwitchPaint(ele, data) {
+				if (!ele || !sevenTVPaints || !window.SeventvPaints) {
+					return;
+				}
+				if (!data || data.type !== "twitch" || !(data.userid || data.username || data.chatname)) {
+					return;
+				}
+				window.SeventvPaints.applyToElement(ele, { userId: data.userid, username: data.username || data.chatname });
+			}
 			
 			function log(msg) {
 				if (urlParams.has("debug")) {
@@ -2959,6 +2971,7 @@
 					  // Put name and badges in the name div
 					  nameDiv.innerHTML = data.chatname + chatbadges;
 					  messageContainer.appendChild(nameDiv);
+					  applyTwitchPaint(nameDiv, data);
 
 					  const messageDiv = document.createElement('div');
 					  messageDiv.className = 'hl-message';
@@ -3028,6 +3041,8 @@
 					  if (data.hasDonation || memebershipHTML) {
 						document.getElementById("newmessage").classList.add("dono");
 					  }
+
+					  applyTwitchPaint(document.getElementById("nameDIV"), data);
 					  
 					  if ((stripLinks || activeLinks || shortlink) && data.chatmessage && document.getElementById("message")) {
 						processURLs(document.getElementById("message"), { makeClickable: activeLinks, stripLinks: stripLinks, shortenURLs: shortlink });
